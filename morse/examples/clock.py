@@ -9,19 +9,18 @@ def draw_now(bot):
     now = datetime.datetime.now()
     return draw_time(bot, now.hour, now.minute)
 
-def draw_time(bot, hour, minute, duration=.25):
-    hour_bit = (hour - 1) % 12
+def draw_time(bot, hour, minute, blink_frequency=1):
+    hour_bit = hour % 12
     minute_bit = minute * 12 / 60
-    end_time = time.time() + duration
+    refresh_interval = 0.5 / blink_frequency
 
     hour_value = (1 << hour_bit)
     minute_value = (1 << minute_bit)
 
-    while time.time() < end_time:
-            bot.eye(hour_value)
-            time.sleep(.1)
-            bot.eye(hour_value | minute_value)
-            time.sleep(.1)
+    bot.eye(hour_value)
+    time.sleep(refresh_interval)
+    bot.eye(hour_value | minute_value)
+    time.sleep(refresh_interval)
 
 if __name__ == "__main__":
     bot = WonderControl(DOT)
