@@ -2,6 +2,7 @@ import pygatt.backends
 import time
 import logging
 import struct
+import binascii
 from colour import Color
 
 logging.getLogger().setLevel(logging.DEBUG)
@@ -63,7 +64,7 @@ class WonderControl(object):
 
     def command(self, command_name, command_values):
         message = bytearray([COMMANDS[command_name]]) + command_values
-        logging.debug([hex(byte) for byte in message])
+        logging.debug(binascii.hexlify(message))
         self.device.char_write_handle(DEVICE_HANDLE, message)
 
     def eye(self, value):
