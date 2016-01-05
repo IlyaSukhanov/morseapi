@@ -31,7 +31,6 @@ def color_byte_array(color_value):
     ])
 
 def angle_array(angle):
-    angle = (degrees*25)/60
     if angle < 0:
         angle = (abs(angle) ^ 0xff) + 1
     return bytearray([angle & 0xff])
