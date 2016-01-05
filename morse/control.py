@@ -11,7 +11,9 @@ COMMANDS={
     "eye":0x09,
     "left_ear_color":0x0b,
     "right_ear_color":0x0c,
-    "head_color":0x0d
+    "head_color":0x0d,
+    "head_pitch":0x07,
+    "head_yaw":0x06
 }
 
 def one_byte_array(value):
@@ -27,6 +29,12 @@ def color_byte_array(color_value):
         int(color.get_green()*255),
         int(color.get_blue()*255),
     ])
+
+def angle_array(angle):
+    angle = (degrees*25)/60
+    if angle < 0:
+        angle = (abs(angle) ^ 0xff) + 1
+    return bytearray([angle & 0xff])
 
 class WonderControl(object):
     def __init__(self, address):
@@ -61,8 +69,27 @@ class WonderControl(object):
     def head_color(self, color):
         self.command("head_color", color_byte_array(value))
 
+    def head_yaw(self, angle):
+        """
+        Angle range is from -53 to 53
+        """
+        if angle <- 53:
+           angle = -53
+        if angle > 53:
+            angle = 53
+        self.command("head_yaw", angle_array(angle))
+
+    def head_pitch(self, angle):
+        """
+        Angle range is from -5 to 10
+        """
+        if angle <- 5:
+            angle = -5
+        if angle > 10:
+            angle = 10
+        self.command("head_pitch", angle_array(angle))
+
 
 if __name__ == "__main__":
     wc = WonderControl("C0:F0:84:3C:51:FA")
-    wc.eye(1,1)
-    time.sleep(12)
+
