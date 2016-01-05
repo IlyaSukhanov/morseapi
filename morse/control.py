@@ -20,10 +20,21 @@ COMMANDS={
 }
 
 NOISES={
-    "elephant":   "53595354454c455048414e545f300e46".decode("hex"),  #SYSTELEPHANT_0.F
-    "tiresqueal": "535953545449524553515545414c0e46".decode("hex"),  #SYSTTIRESQUEAL.F
-    "hi":         "53595354444153485f48495f564f0b00c900".decode("hex"),  #SYSTDASH_HI_VO
-}
+    k:v.decode("hex")
+    for (k,v) in {
+        "elephant":   "53595354454c455048414e545f300e460000",  # SYSTELEPHANT_0.F
+        "tiresqueal": "535953545449524553515545414c0e460000",  # SYSTTIRESQUEAL.F
+        "hi":         "53595354444153485f48495f564f0b00c900",  # SYSTDASH_HI_VO
+        "bragging":   "535953544252414747494e4731410b232300",  # SYSTBRAGGING1A##
+        "ohno":       "5359535456375f4f484e4f5f30390b000000",  # SYSTV7_OHNO_09
+        "ayayay":     "53595354434f4e46555345445f310b000000",  # SYSTCONFUSED_1
+        "confused2":  "53595354434f4e46555345445f320b000000",  # SYSTCONFUSED_2
+        "confused3":  "53595354434f4e46555345445f330b000000",  # SYSTCONFUSED_3
+        "confused5":  "53595354434f4e46555345445f350b000000",  # SYSTCONFUSED_5
+        "confused8":  "53595354434f4e46555345445f380b000000",  # SYSTCONFUSED_8
+        "brrp":       "53595354434f4e46555345445f360b000000",  # SYSTCONFUSED_6
+        "charge":     "535953544348415247455f3033000b000000",  # SYSTCHARGE_03
+    }.items()}
 
 def one_byte_array(value):
     return bytearray(struct.pack(">B", value))
