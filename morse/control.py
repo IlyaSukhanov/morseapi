@@ -2,16 +2,16 @@ import pygatt.backends
 import time
 import logging
 import struct
-#import webcolor
+from colour import Color
 
 DEVICE_HANDLE = 19
 COMMANDS={
-    "neck_light":0x03,
+    "neck_color":0x03,
     "eye_brightness":0x08,
     "eye":0x09,
-    "left_ear":0x0b,
-    "right_ear":0x0c,
-    "head":0x0d
+    "left_ear_color":0x0b,
+    "right_ear_color":0x0c,
+    "head_color":0x0d
 }
 
 def one_byte_array(value):
@@ -19,6 +19,14 @@ def one_byte_array(value):
 
 def two_byte_array(value):
     return bytearray(struct.pack(">H", value))
+
+def color_byte_array(color_value):
+    color = Color(color_value)
+    retur bytearray([
+        int(color.get_red()*255),
+        int(color.get_green()*255),
+        int(color.get_blue()*255),
+    ])
 
 class WonderControl(object):
     def __init__(self, address):
@@ -37,8 +45,22 @@ class WonderControl(object):
     def eye_brightness(self, value):
         self.command("eye_brightness", one_byte_array(value))
 
-    def neck_light(self, value):
-        self.command("neck_light", one_byte_array(value))
+    def neck_color(self, color):
+        self.command("neck_color", color_byte_array(value))
+
+    def left_ear_color(self, color):
+        self.command("left_ear_color", color_byte_array(value))
+
+    def right_ear_color(self, color):
+        self.command("right_ear_color", color_byte_array(value))
+
+    def ear_color(self, color):
+        self.left_ear_color(color)
+        self.right_ear_color(color)
+
+    def head_color(self, color):
+        self.command("head_color", color_byte_array(value))
+
 
 if __name__ == "__main__":
     wc = WonderControl("C0:F0:84:3C:51:FA")
