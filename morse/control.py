@@ -2,7 +2,7 @@ import pygatt.backends
 import time
 
 DEVICE_HANDLE = 19
-COMMANDS={"neck":0x03, "eye":0x08, "left_ear":0x0b, "right_ear":0x0c, "head":0x0d}
+COMMANDS={"neck":0x03, "eye":0x09, "left_ear":0x0b, "right_ear":0x0c, "head":0x0d}
 
 class WonderControl(object):
     def __init__(self, address):
@@ -13,7 +13,9 @@ class WonderControl(object):
     def command(self, command_name, command_value):
         #message = bytearray(COMMANDS[command_name])
         #message.append(command_value)
-        self.device.char_write_handle(DEVICE_HANDLE, bytearray(COMMANDS[command_name]) + command_value)
+        message = bytearray([COMMANDS[command_name]]) + command_value
+        print([hex(byte) for byte in message])
+        self.device.char_write_handle(DEVICE_HANDLE, message)
 
     def eye(self, value1, value2):
         self.command("eye", bytearray([value1, value2]))
