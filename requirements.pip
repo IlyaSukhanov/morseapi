@@ -1,2 +1,3 @@
 -e ./pygatt  # download from git@github.com:peplin/pygatt.git
 pexpect
+colour
