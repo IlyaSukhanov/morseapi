@@ -1,7 +1,8 @@
 import pygatt.backends
 import time
 import logging
-import webcolor
+import struct
+#import webcolor
 
 DEVICE_HANDLE = 19
 COMMANDS={
@@ -13,6 +14,12 @@ COMMANDS={
     "head":0x0d
 }
 
+def one_byte_array(value):
+    return bytearray(struct.pack(">B", value))
+
+def two_byte_array(value):
+    return bytearray(struct.pack(">H", value))
+
 class WonderControl(object):
     def __init__(self, address):
         adapter = pygatt.backends.GATTToolBackend()
@@ -23,12 +30,6 @@ class WonderControl(object):
         message = bytearray([COMMANDS[command_name]]) + command_values
         logging.debug([hex(byte) for byte in message])
         self.device.char_write_handle(DEVICE_HANDLE, message)
-
-    def one_byte_array(value):
-        return bytearray(struct.pack(">B", value)))
-
-    def two_byte_array(value):
-        return bytearray(struct.pack(">H", value)))
 
     def eye(self, value):
         self.command("eye", two_byte_array(value))
