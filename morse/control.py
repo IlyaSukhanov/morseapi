@@ -15,7 +15,14 @@ COMMANDS={
     "right_ear_color":0x0c,
     "head_color":0x0d,
     "head_pitch":0x07,
-    "head_yaw":0x06
+    "head_yaw":0x06,
+    "say":0x18,
+}
+
+NOISES={
+    "elephant":   "53595354454c455048414e545f300e46".decode("hex"),  #SYSTELEPHANT_0.F
+    "tiresqueal": "535953545449524553515545414c0e46".decode("hex"),  #SYSTTIRESQUEAL.F
+    "hi":         "53595354444153485f48495f564f0b00c900".decode("hex"),  #SYSTDASH_HI_VO
 }
 
 def one_byte_array(value):
@@ -74,23 +81,22 @@ class WonderControl(object):
         """
         Angle range is from -53 to 53
         """
-        if angle <- 53:
-           angle = -53
-        if angle > 53:
-            angle = 53
+        angle = max(-53, angle)
+        angle = min(53, angle)
         self.command("head_yaw", angle_array(angle))
 
     def head_pitch(self, angle):
         """
         Angle range is from -5 to 10
         """
-        if angle <- 5:
-            angle = -5
-        if angle > 10:
-            angle = 10
+        angle = max(-5, angle)
+        angle = min(10, angle)
         self.command("head_pitch", angle_array(angle))
+
+    def say(self, sound_name):
+        self.command("say", bytearray(NOISES[sound_name]))
 
 
 if __name__ == "__main__":
     wc = WonderControl("C0:F0:84:3C:51:FA")
-
+    import pdb; pdb.set_trace()  # here you can experiment
