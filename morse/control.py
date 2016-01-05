@@ -4,6 +4,8 @@ import logging
 import struct
 from colour import Color
 
+logging.getLogger().setLevel(logging.DEBUG)
+
 DEVICE_HANDLE = 19
 COMMANDS={
     "neck_color":0x03,
@@ -22,7 +24,7 @@ def two_byte_array(value):
 
 def color_byte_array(color_value):
     color = Color(color_value)
-    retur bytearray([
+    return bytearray([
         int(color.get_red()*255),
         int(color.get_green()*255),
         int(color.get_blue()*255),
@@ -46,13 +48,13 @@ class WonderControl(object):
         self.command("eye_brightness", one_byte_array(value))
 
     def neck_color(self, color):
-        self.command("neck_color", color_byte_array(value))
+        self.command("neck_color", color_byte_array(color))
 
     def left_ear_color(self, color):
-        self.command("left_ear_color", color_byte_array(value))
+        self.command("left_ear_color", color_byte_array(color))
 
     def right_ear_color(self, color):
-        self.command("right_ear_color", color_byte_array(value))
+        self.command("right_ear_color", color_byte_array(color))
 
     def ear_color(self, color):
         self.left_ear_color(color)
