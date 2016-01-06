@@ -4,12 +4,14 @@ import logging
 import struct
 import binascii
 import math
+import sys
 from colour import Color
 
 logging.getLogger().setLevel(logging.DEBUG)
 
-DASH = "EB:C9:96:2D:EA:48"
-DOT = "C0:F0:84:3C:51:FA"
+BOTS = {
+    "dash": "EB:C9:96:2D:EA:48",
+    "dot": "C0:F0:84:3C:51:FA"}
 DEVICE_HANDLE = 19
 COMMANDS={
     "neck_color":0x03,
@@ -122,7 +124,6 @@ class WonderControl(object):
         self.command("move", byte_array)
 
     def _get_move_byte_array(self, distance_millimetres=0, left_angle_degrees=0, time_seconds=1.0):
-        # TODO use constant speed instead of time_seconds
         distance_low_byte = distance_millimetres & 0x00ff
         distance_high_byte = (distance_millimetres & 0xff00) >> 8
         left_angle_centiradians = int(math.radians(left_angle_degrees) * 100.0)
@@ -144,5 +145,6 @@ class WonderControl(object):
         return bytearray(b)
 
 if __name__ == "__main__":
-    wc = WonderControl(DASH)
+    bot = BOTS[sys.argv[1]]
+    wc = WonderControl(bot)
     import pdb; pdb.set_trace()  # here you can experiment
