@@ -116,16 +116,20 @@ class WonderControl(object):
         byte_array = self._get_move_byte_array(left_angle_degrees=left_angle_degrees)
         self.command("move", byte_array)
 
-    def _get_move_byte_array(self, distance_millimetres=0, left_angle_degrees=0, time_seconds=1):
+    def move(self, distance_millimetres, speed_mmps=1000.0):
+        time_seconds = distance_millimetres / speed_mmps
+        byte_array = self._get_move_byte_array(distance_millimetres=distance_millimetres, time_seconds=time_seconds)
+        self.command("move", byte_array)
+
+    def _get_move_byte_array(self, distance_millimetres=0, left_angle_degrees=0, time_seconds=1.0):
         # TODO use constant speed instead of time_seconds
-        distance_low_byte = 0  # TODO
-        distance_high_byte = 0
-        left_angle_centiradians = int(math.radians(left_angle_degrees) * 100)
+        distance_low_byte = distance_millimetres & 0x00ff
+        distance_high_byte = (distance_millimetres & 0xff00) >> 8
+        left_angle_centiradians = int(math.radians(left_angle_degrees) * 100.0)
         turn_low_byte = left_angle_centiradians & 0x00ff
         turn_high_byte = (left_angle_centiradians & 0xff00) >> 8 << 6
         distance_turn_high_byte = distance_high_byte | turn_high_byte
-        import pdb; pdb.set_trace()
-        time_measure = time_seconds * 1000
+        time_measure = int(time_seconds * 1000.0)
         time_low_byte = time_measure & 0x00ff
         time_high_byte = (time_measure & 0xff00) >> 8
         b = [
