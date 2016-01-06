@@ -145,6 +145,6 @@ class WonderControl(object):
         return bytearray(b)
 
 if __name__ == "__main__":
-    bot = BOTS[sys.argv[1]]
-    wc = WonderControl(bot)
+    bot_name = BOTS[sys.argv[1]]
+    bot = WonderControl(bot_name)
     import pdb; pdb.set_trace()  # here you can experiment
