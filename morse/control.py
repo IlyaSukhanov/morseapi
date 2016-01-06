@@ -3,10 +3,13 @@ import time
 import logging
 import struct
 import binascii
+import math
 from colour import Color
 
 logging.getLogger().setLevel(logging.DEBUG)
 
+DASH = "EB:C9:96:2D:EA:48"
+DOT = "C0:F0:84:3C:51:FA"
 DEVICE_HANDLE = 19
 COMMANDS={
     "neck_color":0x03,
@@ -18,6 +21,7 @@ COMMANDS={
     "head_pitch":0x07,
     "head_yaw":0x06,
     "say":0x18,
+    "move":0x23,
 }
 
 NOISES={
@@ -108,7 +112,33 @@ class WonderControl(object):
     def say(self, sound_name):
         self.command("say", bytearray(NOISES[sound_name]))
 
+    def turn(self, left_angle_degrees):
+        byte_array = self._get_move_byte_array(left_angle_degrees=left_angle_degrees)
+        self.command("move", byte_array)
+
+    def _get_move_byte_array(self, distance_millimetres=0, left_angle_degrees=0, time_seconds=1):
+        # TODO use constant speed instead of time_seconds
+        distance_low_byte = 0  # TODO
+        distance_high_byte = 0
+        left_angle_centiradians = int(math.radians(left_angle_degrees) * 100)
+        turn_low_byte = left_angle_centiradians & 0x00ff
+        turn_high_byte = (left_angle_centiradians & 0xff00) >> 8 << 6
+        distance_turn_high_byte = distance_high_byte | turn_high_byte
+        import pdb; pdb.set_trace()
+        time_measure = time_seconds * 1000
+        time_low_byte = time_measure & 0x00ff
+        time_high_byte = (time_measure & 0xff00) >> 8
+        b = [
+            distance_low_byte,
+            0x00,  # unknown
+            turn_low_byte,
+            time_high_byte,
+            time_low_byte,
+            distance_turn_high_byte,  # compound high byte for turning (high 2 bits) and distance (low 6 bits)
+            0x00,  # unknown
+            0x40]  # unknown
+        return bytearray(b)
 
 if __name__ == "__main__":
-    wc = WonderControl("C0:F0:84:3C:51:FA")
+    wc = WonderControl(DASH)
     import pdb; pdb.set_trace()  # here you can experiment
