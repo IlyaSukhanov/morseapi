@@ -1,9 +1,10 @@
 import time
 import pexpect
 import datetime
+import sys
 from ..control  import WonderControl
 
-DOT = "C0:F0:84:3C:51:FA"
+DEFAULT_BOT = "C0:F0:84:3C:51:FA"
 AMPM_COLORS = {"am": "green", "pm": "darkorange"}
 
 def draw_now(bot):
@@ -25,10 +26,13 @@ def draw_time(bot, hour, minute, blink_duration__seconds=1):
     bot.eye(hour_value | minute_value)
     time.sleep(refresh_interval)
 
-def run():
-    bot = WonderControl(DOT)
+def run(bot_address):
+    print "Connecting to " + bot_address
+    bot = WonderControl(bot_address)
+    print "Connected"
     while True:
         draw_now(bot)
 
 if __name__ == "__main__":
-    run()
+    bot_address = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_BOT
+    run(bot_address)
