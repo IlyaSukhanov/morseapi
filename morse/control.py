@@ -64,6 +64,7 @@ def angle_array(angle):
 class WonderControl(object):
     def __init__(self, address=None):
         self.address = address
+        self._connect()
 
     def _connect(self):
         if self.address:
