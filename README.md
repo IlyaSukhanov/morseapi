@@ -1,13 +1,8 @@
 # morse
-`morse` is a python library for controlling Wonder Workshop's
-[Dash and Dot](https://www.makewonder.com/?gclid=CPOO8bC8k8oCFdaRHwodPeMIZg) bots.
+`morse` is a python library for controlling [Wonder Workshop's](https://www.makewonder.com/)
+[Dash and Dot](https://www.makewonder.com/?gclid=CPOO8bC8k8oCFdaRHwodPeMIZg) robots.
 
-The bots utilize a closed-source bluetooth API based on the GATT protocol. Our library provides python functions
-for controlling (some of) the functionality available over bluetooth, such as eye, neck and ear colors,
-sounds, and movement.
-
-The library uses `pexpect` (via `pygatt`) to send commands to a `gatttool` session which then uses the ATT protocol
-to send the bluetooth packets. The `gatttool` session is kept alive for as long as a reference to the bot object is available.
+The robots are controlled with commands sent over Blutooth, specifically [GATT](https://developer.bluetooth.org/TechnologyOverview/Pages/GATT.aspx). Morse provides an high level abstraction of this command protocol. Exposing control of eye, neck, head and ear colors through python methods.
 
 ## Motivation
 There exist smartphone apps which allow remote-controlling Dash and Dot, and even "writing programs" for them.
@@ -30,6 +25,30 @@ Steps:
  * `git clone https://github.com/peplin/pygatt`
  * `pip install -r requirements.pip`
 
+## Completeness
+Dash and Dot have many different commands. Morse implements only fraction there of:
+
+ * LED Lights:
+  * Ears
+  * Top of Head
+  * Neck / Eye backlight
+  * Individual iris LEDs
+  * Iris brightness
+ * Motion (Dash only)
+  * Head pitch and Yaw
+  * Move back and forth
+  * Turn left and right
+ * Sound
+  * Playback of built in sounds
+  * --Uploading new sounds--
+ * --Sensor feedback--
+  * --Proximity Sensing--
+  * --Dash sensing of Dot--
+  * --Microphone--
+ * --Robot discovery--
+   * --feature discovery (Dash & Dot have different feature sets)--
+
+
 ## Example
 Run:
 
@@ -38,3 +57,17 @@ python -m morse/examples/clock.py C0:F0:84:3C:51:FA
 ```
 
 where `C0:F0:84:3C:51:FA` should be the bluetooth address of your bot
+
+```
+$ cd morse
+$ python
+>>> from control import WonderControl
+>>> bot = WonderControl("C0:F0:84:3C:51:FA")
+>>> bot.say("hi")
+>>> bot.move(100)
+>>> bot.turn(45)
+>>> bot.ear_color("red")
+>>> bot.head_yaw(10)
+>>> bot.eye(255)
+>>> bot.eye(100)
+```
