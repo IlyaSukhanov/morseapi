@@ -7,11 +7,10 @@ import math
 import sys
 from colour import Color
 
-logging.getLogger().setLevel(logging.DEBUG)
-
 BOTS = {
     "dash": "EB:C9:96:2D:EA:48",
-    "dot": "C0:F0:84:3C:51:FA"}
+    "dot": "C0:F0:84:3C:51:FA",
+}
 DEVICE_HANDLE = 19
 COMMANDS={
     "neck_color":0x03,
@@ -63,15 +62,20 @@ def angle_array(angle):
     return bytearray([angle & 0xff])
 
 class WonderControl(object):
-    def __init__(self, address):
-        adapter = pygatt.backends.GATTToolBackend()
-        adapter.start()
-        self.device = adapter.connect(address, address_type='random')
+    def __init__(self, address=None):
+        self.address = address
+
+    def _connect(self):
+        if self.address:
+            adapter = pygatt.backends.GATTToolBackend()
+            adapter.start()
+            self.device = adapter.connect(address, address_type='random')
 
     def command(self, command_name, command_values):
         message = bytearray([COMMANDS[command_name]]) + command_values
         logging.debug(binascii.hexlify(message))
-        self.device.char_write_handle(DEVICE_HANDLE, message)
+        if self.address:
+            self.device.char_write_handle(DEVICE_HANDLE, message)
 
     def eye(self, value):
         self.command("eye", two_byte_array(value))
@@ -93,7 +97,7 @@ class WonderControl(object):
         self.right_ear_color(color)
 
     def head_color(self, color):
-        self.command("head_color", color_byte_array(value))
+        self.command("head_color", color_byte_array(color))
 
     def head_yaw(self, angle):
         """
@@ -145,6 +149,7 @@ class WonderControl(object):
         return bytearray(b)
 
 if __name__ == "__main__":
-    bot_name = BOTS[sys.argv[1]]
+    logging.getLogger().setLevel(logging.DEBUG)
+    bot_name = BOTS[sys.argv[1]] if len(argv)>1 else None
     bot = WonderControl(bot_name)
     import pdb; pdb.set_trace()  # here you can experiment
