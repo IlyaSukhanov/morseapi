@@ -40,13 +40,13 @@ Dash and Dot have many different commands. Morse implements only fraction there 
   * Turn left and right
  * Sound
   * Playback of built in sounds
-  * --Uploading new sounds--
- * --Sensor feedback--
-  * --Proximity Sensing--
-  * --Dash sensing of Dot--
-  * --Microphone--
- * --Robot discovery--
-   * --feature discovery (Dash & Dot have different feature sets)--
+  * ~~Uploading new sounds~~
+ * ~~Sensor feedback~~
+  * ~~Proximity Sensing~~
+  * ~~Dash sensing of Dot~~
+  * ~~Microphone~~
+ * ~~Robot discovery~~
+   * ~~feature discovery (Dash & Dot have different feature sets)~~
 
 
 ## Example
