@@ -118,38 +118,65 @@ class WonderControl(object):
     def say(self, sound_name):
         self.command("say", bytearray(NOISES[sound_name]))
 
-    def turn(self, left_angle_degrees):
-        byte_array = self._get_move_byte_array(left_angle_degrees=left_angle_degrees)
-        self.command("move", byte_array)
+    def turn(self, degrees):
+        """
+        Turn robot degrees to left. Negative degrees to turn right.
+        """
+        if abs(degrees)>360:
+            raise NotImplementedError("Cannot turn more than one rotation per move")
+        if degrees:
+            byte_array = self._get_move_byte_array(degrees=degrees, seconds=degrees*(2.094/360.0))
+            self.command("move", byte_array)
 
     def move(self, distance_millimetres, speed_mmps=1000.0):
-        time_seconds = distance_millimetres / speed_mmps
-        byte_array = self._get_move_byte_array(distance_millimetres=distance_millimetres, time_seconds=time_seconds)
+        seconds = distance_millimetres / speed_mmps
+        byte_array = self._get_move_byte_array(distance_millimetres=distance_millimetres, seconds=seconds)
         self.command("move", byte_array)
 
-    def _get_move_byte_array(self, distance_millimetres=0, left_angle_degrees=0, time_seconds=1.0):
+    def _get_move_byte_array(self, distance_millimetres=0, degrees=0, seconds=1.0):
+        if distance_millimetres and degrees:
+            # Sixth byte is mixed use
+            # * turning
+            #   * high nibble is turn distance high byte<<2
+            #   * low nibble is 0
+            # * driving straight
+            #   * whole byte is high byte of drive distance
+            # unclear if these can be combined
+            raise NotImplementedError("Cannot turn and drive concurrently")
+
+        seventh_byte = 0
+
         distance_low_byte = distance_millimetres & 0x00ff
         distance_high_byte = (distance_millimetres & 0xff00) >> 8
-        left_angle_centiradians = int(math.radians(left_angle_degrees) * 100.0)
-        turn_low_byte = left_angle_centiradians & 0x00ff
-        turn_high_byte = (left_angle_centiradians & 0xff00) >> 8 << 6
-        distance_turn_high_byte = distance_high_byte | turn_high_byte
-        time_measure = int(time_seconds * 1000.0)
+        sixth_byte = distance_high_byte
+
+        centiradians = int(math.radians(degrees) * 100.0)
+        turn_low_byte = centiradians & 0x00ff
+        turn_high_byte = (centiradians & 0x0300) >> 2
+        sixth_byte = turn_high_byte
+        if centiradians < 0:
+            seventh_byte = 0xc0
+
+        time_measure = int(seconds * 1000.0)
         time_low_byte = time_measure & 0x00ff
         time_high_byte = (time_measure & 0xff00) >> 8
-        b = [
+
+        return bytearray([
             distance_low_byte,
             0x00,  # unknown
             turn_low_byte,
             time_high_byte,
             time_low_byte,
-            distance_turn_high_byte,  # compound high byte for turning (high 2 bits) and distance (low 6 bits)
-            0x00,  # unknown
-            0x40]  # unknown
-        return bytearray(b)
+            sixth_byte,
+            seventh_byte,
+            0x40, # unknown
+        ])
 
 if __name__ == "__main__":
     logging.getLogger().setLevel(logging.DEBUG)
-    bot_name = BOTS[sys.argv[1]] if len(argv)>1 else None
+    bot_name = BOTS[sys.argv[1]] if len(sys.argv)>1 else None
     bot = WonderControl(bot_name)
-    import pdb; pdb.set_trace()  # here you can experiment
+    for i in range(0, 9):
+        bot.turn(45*i)
+    for i in range(0, 9):
+        bot.turn(-45*i)
