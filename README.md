@@ -34,6 +34,7 @@ Dash and Dot have many different commands. Morse implements only fraction there 
   * Neck / Eye backlight
   * Individual iris LEDs
   * Iris brightness
+  * ~~tail light~~
  * Motion (Dash only)
   * Head pitch and Yaw
   * Move back and forth
@@ -41,10 +42,15 @@ Dash and Dot have many different commands. Morse implements only fraction there 
  * Sound
   * Playback of built in sounds
   * ~~Uploading new sounds~~
- * ~~Sensor feedback~~
-  * ~~Proximity Sensing~~
+ * Sensor feedback
+  * Microphone volume
+  * Proximity Sensing
+  * Head pitch / yaw
+  * wheel rotation
   * ~~Dash sensing of Dot~~
-  * ~~Microphone~~
+  * ~~Sound direction~~
+  * ~~Gyro~~
+  * ~~Battery state~~
  * ~~Robot discovery~~
    * ~~feature discovery (Dash & Dot have different feature sets)~~
 

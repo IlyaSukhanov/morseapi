@@ -5,14 +5,22 @@ import struct
 import binascii
 import math
 import sys
+from uuid import UUID
 from colour import Color
 
 BOTS = {
     "dash": "EB:C9:96:2D:EA:48",
     "dot": "C0:F0:84:3C:51:FA",
 }
-DEVICE_HANDLE = 19
-COMMANDS={
+
+HANDLES = {
+    "command": 0x13,
+}
+CHARACTERISTICS = {
+    "dash_sensor": UUID("af230006-879d-6186-1f49-deca0e85d9c1"),
+    "universal_sensor": UUID("af230003-879d-6186-1f49-deca0e85d9c1"),
+}
+COMMANDS = {
     "neck_color":0x03,
     "eye_brightness":0x08,
     "eye":0x09,
@@ -40,7 +48,8 @@ NOISES={
         "confused8":  "53595354434f4e46555345445f380b000000",  # SYSTCONFUSED_8
         "brrp":       "53595354434f4e46555345445f360b000000",  # SYSTCONFUSED_6
         "charge":     "535953544348415247455f3033000b000000",  # SYSTCHARGE_03
-    }.items()}
+    }.items()
+}
 
 def one_byte_array(value):
     return bytearray(struct.pack(">B", value))
@@ -69,15 +78,15 @@ class WonderControl(object):
     def _connect(self):
         if self.address:
             adapter = pygatt.backends.GATTToolBackend()
-            adapter.start()
-            self.device = adapter.connect(address, address_type='random')
+            adapter.start(False)
+            self.device = adapter.connect(self.address, address_type='random')
 
     def command(self, command_name, command_values):
         message = bytearray([COMMANDS[command_name]]) + command_values
         logging.debug(binascii.hexlify(message))
         if self.address:
-            self.device.char_write_handle(DEVICE_HANDLE, message)
-
+            self.device.char_write_handle(HANDLES["command"], message)
+ 
     def eye(self, value):
         self.command("eye", two_byte_array(value))
 
@@ -128,6 +137,31 @@ class WonderControl(object):
         if degrees:
             byte_array = self._get_move_byte_array(degrees=degrees, seconds=degrees*(2.094/360.0))
             self.command("move", byte_array)
+ 
+    def _dash_sensor_decode(self, handle, value):
+        sensors = {}
+        sensors["dash_index"] = value[0] >> 4
+        sensors["prox_right"] = value[6]
+        sensors["prox_left"] = value[7]
+        sensors["prox_rear"] = value[8]
+        sensors["robot_yaw"] = (value[13] << 8) | value[12]
+        sensors["left_wheel"] = (value[15] << 8) | value[14]
+        sensors["right_wheel"] = (value[17] << 8) | value[16]
+        sensors["head_pitch"] = value[18]
+        sensors["head_yaw"] = value[19]
+        print(sensors)
+        # usensors = {}
+        # byte 9, 10, 11 change with wheel rotation
+        # usensors["0"] = value[0] & 0x0f
+        # usensors["1"] = value[1]
+        # usensors["2"] = value[2]
+        # usensors["3"] = value[3]
+        # usensors["4"] = value[4]
+        # usensors["5"] = value[5]
+        # print("1:{:08b}\t2:{:08b}\t3:{:08b}\t4:{:08b}\t5:{:08b}".format(value[1], value[2], value[3], value[4], value[5]))
+ 
+    def activate_sensors(self):
+        self.device.subscribe(CHARACTERISTICS["dash_sensor"], self._dash_sensor_decode)
 
     def move(self, distance_millimetres, speed_mmps=1000.0):
         seconds = distance_millimetres / speed_mmps
@@ -174,10 +208,14 @@ class WonderControl(object):
         ])
 
 if __name__ == "__main__":
-    logging.getLogger().setLevel(logging.DEBUG)
+    #logging.getLogger().setLevel(logging.DEBUG)
     bot_name = BOTS[sys.argv[1]] if len(sys.argv)>1 else None
     bot = WonderControl(bot_name)
-    for i in range(0, 9):
-        bot.turn(45*i)
-    for i in range(0, 9):
-        bot.turn(-45*i)
+    bot.activate_sensors()
+    #for i in range(0, 9):
+    #    bot.turn(45*i)
+    #for i in range(0, 9):
+    #    bot.turn(-45*i)
+    import time
+    while True:
+        time.sleep(1)
