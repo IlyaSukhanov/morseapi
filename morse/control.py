@@ -137,6 +137,7 @@ class WonderControl(object):
         if degrees:
             byte_array = self._get_move_byte_array(degrees=degrees, seconds=degrees*(2.094/360.0))
             self.command("move", byte_array)
+            time.sleep(seconds)
  
     def _dash_sensor_decode(self, handle, value):
         sensors = {}
@@ -167,6 +168,7 @@ class WonderControl(object):
         seconds = distance_millimetres / speed_mmps
         byte_array = self._get_move_byte_array(distance_millimetres=distance_millimetres, seconds=seconds)
         self.command("move", byte_array)
+        time.sleep(seconds)
 
     def _get_move_byte_array(self, distance_millimetres=0, degrees=0, seconds=1.0):
         if distance_millimetres and degrees:
