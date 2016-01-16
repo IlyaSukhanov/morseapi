@@ -1,3 +1,2 @@
--e ./pygatt  # download from git@github.com:peplin/pygatt.git
-pexpect
+pygatt[GATTTOOL]
 colour
