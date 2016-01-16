@@ -1,55 +1,15 @@
-import pygatt.backends
 import time
 import logging
 import struct
 import binascii
 import math
 import sys
-from uuid import UUID
+
 from colour import Color
+import pygatt.backends
 
-BOTS = {
-    "dash": "EB:C9:96:2D:EA:48",
-    "dot": "C0:F0:84:3C:51:FA",
-}
-
-HANDLES = {
-    "command": 0x13,
-}
-CHARACTERISTICS = {
-    "dash_sensor": UUID("af230006-879d-6186-1f49-deca0e85d9c1"),
-    "universal_sensor": UUID("af230003-879d-6186-1f49-deca0e85d9c1"),
-}
-COMMANDS = {
-    "neck_color":0x03,
-    "eye_brightness":0x08,
-    "eye":0x09,
-    "left_ear_color":0x0b,
-    "right_ear_color":0x0c,
-    "head_color":0x0d,
-    "head_pitch":0x07,
-    "head_yaw":0x06,
-    "say":0x18,
-    "move":0x23,
-}
-
-NOISES={
-    k:v.decode("hex")
-    for (k,v) in {
-        "elephant":   "53595354454c455048414e545f300e460000",  # SYSTELEPHANT_0.F
-        "tiresqueal": "535953545449524553515545414c0e460000",  # SYSTTIRESQUEAL.F
-        "hi":         "53595354444153485f48495f564f0b00c900",  # SYSTDASH_HI_VO
-        "bragging":   "535953544252414747494e4731410b232300",  # SYSTBRAGGING1A##
-        "ohno":       "5359535456375f4f484e4f5f30390b000000",  # SYSTV7_OHNO_09
-        "ayayay":     "53595354434f4e46555345445f310b000000",  # SYSTCONFUSED_1
-        "confused2":  "53595354434f4e46555345445f320b000000",  # SYSTCONFUSED_2
-        "confused3":  "53595354434f4e46555345445f330b000000",  # SYSTCONFUSED_3
-        "confused5":  "53595354434f4e46555345445f350b000000",  # SYSTCONFUSED_5
-        "confused8":  "53595354434f4e46555345445f380b000000",  # SYSTCONFUSED_8
-        "brrp":       "53595354434f4e46555345445f360b000000",  # SYSTCONFUSED_6
-        "charge":     "535953544348415247455f3033000b000000",  # SYSTCHARGE_03
-    }.items()
-}
+from sensors import MorseSense
+from constants import BOTS, HANDLES, CHARACTERISTICS, COMMANDS, NOISES
 
 def one_byte_array(value):
     return bytearray(struct.pack(">B", value))
@@ -70,22 +30,24 @@ def angle_array(angle):
         angle = (abs(angle) ^ 0xff) + 1
     return bytearray([angle & 0xff])
 
-class WonderControl(object):
+class MorseRobot(object):
     def __init__(self, address=None):
         self.address = address
+        self.state = {}
         self._connect()
 
     def _connect(self):
         if self.address:
             adapter = pygatt.backends.GATTToolBackend()
             adapter.start(False)
-            self.device = adapter.connect(self.address, address_type='random')
+            self.connection = adapter.connect(self.address, address_type='random')
+            self.sense = MorseSense(self.connection, self.state, "dash")
 
     def command(self, command_name, command_values):
         message = bytearray([COMMANDS[command_name]]) + command_values
         logging.debug(binascii.hexlify(message))
         if self.address:
-            self.device.char_write_handle(HANDLES["command"], message)
+            self.connection.char_write_handle(HANDLES["command"], message)
  
     def eye(self, value):
         self.command("eye", two_byte_array(value))
@@ -139,31 +101,6 @@ class WonderControl(object):
             self.command("move", byte_array)
             time.sleep(seconds)
  
-    def _dash_sensor_decode(self, handle, value):
-        sensors = {}
-        sensors["dash_index"] = value[0] >> 4
-        sensors["prox_right"] = value[6]
-        sensors["prox_left"] = value[7]
-        sensors["prox_rear"] = value[8]
-        sensors["robot_yaw"] = (value[13] << 8) | value[12]
-        sensors["left_wheel"] = (value[15] << 8) | value[14]
-        sensors["right_wheel"] = (value[17] << 8) | value[16]
-        sensors["head_pitch"] = value[18]
-        sensors["head_yaw"] = value[19]
-        print(sensors)
-        # usensors = {}
-        # byte 9, 10, 11 change with wheel rotation
-        # usensors["0"] = value[0] & 0x0f
-        # usensors["1"] = value[1]
-        # usensors["2"] = value[2]
-        # usensors["3"] = value[3]
-        # usensors["4"] = value[4]
-        # usensors["5"] = value[5]
-        # print("1:{:08b}\t2:{:08b}\t3:{:08b}\t4:{:08b}\t5:{:08b}".format(value[1], value[2], value[3], value[4], value[5]))
- 
-    def activate_sensors(self):
-        self.device.subscribe(CHARACTERISTICS["dash_sensor"], self._dash_sensor_decode)
-
     def move(self, distance_millimetres, speed_mmps=1000.0):
         seconds = distance_millimetres / speed_mmps
         byte_array = self._get_move_byte_array(distance_millimetres=distance_millimetres, seconds=seconds)
@@ -210,14 +147,13 @@ class WonderControl(object):
         ])
 
 if __name__ == "__main__":
-    #logging.getLogger().setLevel(logging.DEBUG)
+    logging.getLogger().setLevel(logging.DEBUG)
     bot_name = BOTS[sys.argv[1]] if len(sys.argv)>1 else None
-    bot = WonderControl(bot_name)
-    bot.activate_sensors()
+    bot = MorseRobot(bot_name)
     #for i in range(0, 9):
     #    bot.turn(45*i)
     #for i in range(0, 9):
     #    bot.turn(-45*i)
     import time
     while True:
-        time.sleep(1)
+        time.sleep(100)
