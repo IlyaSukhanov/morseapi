@@ -22,7 +22,9 @@ COMMANDS = {
     "head_pitch":0x07,
     "head_yaw":0x06,
     "say":0x18,
+    "drive":0x02,
     "move":0x23,
+    "reset":0xc8, 
 }
 
 NOISES={

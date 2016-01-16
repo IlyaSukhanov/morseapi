@@ -48,6 +48,18 @@ class MorseRobot(object):
         logging.debug(binascii.hexlify(message))
         if self.address:
             self.connection.char_write_handle(HANDLES["command"], message)
+
+    def reset(self, mode=4):
+        """
+        Reset robot
+        :param mode: Reset mode
+
+        Available modes:
+        1 some kind of debug/reflash mode?
+        3 reboot
+        4 zero out leds/head
+        """
+        self.command("reser", bytearray([mode]))
  
     def eye(self, value):
         self.command("eye", two_byte_array(value))
@@ -90,6 +102,31 @@ class MorseRobot(object):
     def say(self, sound_name):
         self.command("say", bytearray(NOISES[sound_name]))
 
+    def stop(self):
+        self.command("drive", bytearray([0,0,0]))
+
+    def drive(self, speed):
+        speed = max(-2048, speed)
+        speed = min(2048, speed)
+        if speed < 0:
+            speed = 0x800 + speed
+        self.command("drive", bytearray([
+            speed & 0xff,
+            0x00,
+            (speed & 0x0f00) >> 8
+        ]))
+
+    def spin(self, speed):
+        speed = max(-2048, speed)
+        speed = min(2048, speed)
+        if speed < 0:
+            speed = 0x800 + speed
+        self.command("drive", bytearray([
+            0x00,
+            speed & 0xff,
+            (speed & 0xff00) >> 5
+        ]))
+
     def turn(self, degrees):
         """
         Turn robot degrees to left. Negative degrees to turn right.
@@ -116,7 +153,7 @@ class MorseRobot(object):
             # * driving straight
             #   * whole byte is high byte of drive distance
             # unclear if these can be combined
-            raise NotImplementedError("Cannot turn and drive concurrently")
+            raise NotImplementedError("Cannot turn and move concurrently")
 
         seventh_byte = 0
 
