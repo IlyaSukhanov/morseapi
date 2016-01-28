@@ -1,2 +1,6 @@
 pygatt[GATTTOOL]
 colour
+pyRobots
+#dev stuff:
+mock
+nose

@@ -13,13 +13,17 @@ class MorseSense(object):
         self.state = state
         self.robot_type = robot_type
         self.connection = connection
+        self.ready = False
         self.start()
+        while not self.ready:
+            pass
 
     def start(self):
         if self.robot_type == "dash":
             self.connection.subscribe(CHARACTERISTICS["dash_sensor"], self._dash_sensor_decode)
 
     def _dash_sensor_decode(self, handle, value):
+        self.ready = True
         self.state["dash_index"] = value[0] >> 4
         self.state["prox_right"] = value[6]
         self.state["prox_left"] = value[7]
