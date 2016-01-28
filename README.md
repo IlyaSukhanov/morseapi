@@ -1,5 +1,5 @@
-# morse
-`morse` is a python library for controlling [Wonder Workshop's](https://www.makewonder.com/)
+# MorseAPI
+`MorseAPI` is an unofficial python library for controlling [Wonder Workshop's](https://www.makewonder.com/)
 [Dash and Dot](https://www.makewonder.com/?gclid=CPOO8bC8k8oCFdaRHwodPeMIZg) robots.
 
 The robots are controlled with commands sent over Blutooth, specifically [GATT](https://developer.bluetooth.org/TechnologyOverview/Pages/GATT.aspx). Morse provides an high level abstraction of this command protocol. Exposing control of eye, neck, head and ear colors through python methods.
@@ -13,7 +13,7 @@ That doesn't need to be the case - young kids can get started with the simple
 drag-and-drop interface to get some exposure and instill interest, then graduate to a programming API interface in order
 to create more complicated and complete implementations of their creative ideas.
 
-`morse` provides that programming interface, in a language that is easy to pick up even for non-engineers: Python.
+`MorseAPI` provides that programming interface, in a language that is easy to pick up even for non-engineers: Python.
 
 ## Installation
 This is only tested on Debian, though it should work on other Linux flavors. OSX and Windows are NOT supported.
@@ -65,10 +65,9 @@ python -m morse/examples/clock.py C0:F0:84:3C:51:FA
 where `C0:F0:84:3C:51:FA` should be the bluetooth address of your bot
 
 ```
-$ cd morse
 $ python
->>> from control import WonderControl
->>> bot = WonderControl("C0:F0:84:3C:51:FA")
+>>> from morseapi import MorseRobot
+>>> bot = MorseRobot("C0:F0:84:3C:51:FA")
 >>> bot.say("hi")
 >>> bot.move(100)
 >>> bot.turn(45)
