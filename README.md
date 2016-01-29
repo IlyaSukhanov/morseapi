@@ -1,8 +1,30 @@
 # MorseAPI
-`MorseAPI` is an unofficial python library for controlling [Wonder Workshop's](https://www.makewonder.com/)
-[Dash and Dot](https://www.makewonder.com/?gclid=CPOO8bC8k8oCFdaRHwodPeMIZg) robots.
+`MorseAPI` is an unofficial (and unsanctioned) python library for controlling
+[Wonder Workshop's](https://www.makewonder.com/)
+[Dash and Dot](https://www.makewonder.com/?gclid=CPOO8bC8k8oCFdaRHwodPeMIZg)
+robots.
 
-The robots are controlled with commands sent over Blutooth, specifically [GATT](https://developer.bluetooth.org/TechnologyOverview/Pages/GATT.aspx). Morse provides an high level abstraction of this command protocol. Exposing control of eye, neck, head and ear colors through python methods.
+The robots are controlled with commands sent over Bluetooth, specifically
+[GATT](https://developer.bluetooth.org/TechnologyOverview/Pages/GATT.aspx).
+MorseAPI abstracts out this communication protocol and, through python methods
+exposes control of lights, motion and sensor data.
+
+## Compatibility
+MorseAPI has only been tested on GNU/Linux platforms. It should work with any
+reasonably modern Distro. Limitation is mostly on the BlueZ version, and
+bluetooth adapter compatibility. [Raspberry Pi](https://www.raspberrypi.org/)
+is a particularly attractive platform for running MorseAPI. Its a small
+enough package that it can be attached to the robot making for a fully
+integrated, and portable package. 
+[Raspbian](https://www.raspberrypi.org/downloads/raspbian/) in particular
+has been tested in this combination. Note, that Raspberry does not come
+with a built in bluttooth module, so a USB bluetooth accessory is required.
+
+In theory it should be possible to us MorseAPI on OSX. To do so you must
+use [pygatt](https://github.com/peplin/pygatt)'s BGAPI backend. But it
+does require a very special bluetooth adapter;
+[BLED112](https://www.bluegiga.com/en-US/products/bled112-bluetooth-smart-dongle/).
+Again OSX has not been tested.
 
 ## Motivation
 There exist smartphone apps which allow remote-controlling Dash and Dot, and even "writing programs" for them.
@@ -52,7 +74,7 @@ Dash and Dot have many different commands. Morse implements only fraction there 
   * ~~Gyro~~
   * ~~Battery state~~
  * ~~Robot discovery~~
-   * ~~feature discovery (Dash & Dot have different feature sets)~~
+   * feature discovery (Dash & Dot have different feature sets)
 
 
 ## Example
