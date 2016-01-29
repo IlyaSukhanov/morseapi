@@ -10,7 +10,7 @@ HANDLES = {
 }
 CHARACTERISTICS = {
     "dash_sensor": UUID("af230006-879d-6186-1f49-deca0e85d9c1"),
-    "universal_sensor": UUID("af230003-879d-6186-1f49-deca0e85d9c1"),
+    "dot_sensor": UUID("af230003-879d-6186-1f49-deca0e85d9c1"),
 }
 COMMANDS = {
     "neck_color":0x03,

@@ -40,21 +40,27 @@ def angle_array(angle):
 class MorseRobot(GenericRobot):
     def __init__(self, address=None):
         super(MorseRobot, self).__init__()
+        self.sensor_state = {}
         self.address = address
-        self.state = {}
-        self._connect()
+        self._connection = None
 
-    def _connect(self):
-        if self.address:
+    @property
+    def connection(self):
+        if self._connection:
+            return self._connection
+        elif self.address:
             adapter = pygatt.backends.GATTToolBackend()
             adapter.start(False)
-            self.connection = adapter.connect(self.address, address_type='random')
-            self.sense = MorseSense(self.connection, self.state, "dash")
+            self._connection = adapter.connect(self.address, address_type='random')
+            self.sense = MorseSense(self._connection, self.sensor_state, "dash")
+            return self._connection
+        else:
+            return None
 
     def command(self, command_name, command_values):
         message = bytearray([COMMANDS[command_name]]) + command_values
         logging.debug(binascii.hexlify(message))
-        if self.address:
+        if self.connection:
             self.connection.char_write_handle(HANDLES["command"], message)
 
     def reset(self, mode=4):
@@ -201,6 +207,8 @@ if __name__ == "__main__":
     #    bot.turn(45*i)
     #for i in range(0, 9):
     #    bot.turn(-45*i)
-    import time
-    while True:
-        time.sleep(100)
+    #import time
+    #while True:
+    #    time.sleep(100)
+    bot.spin(-200)
+    bot.spin(200)
