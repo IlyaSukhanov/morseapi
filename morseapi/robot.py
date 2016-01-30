@@ -66,6 +66,7 @@ class MorseRobot(GenericRobot):
     def reset(self, mode=4):
         """
         Reset robot
+
         :param mode: Reset mode
 
         Available modes:
@@ -74,20 +75,58 @@ class MorseRobot(GenericRobot):
         4 zero out leds/head
         """
         self.command("reset", bytearray([mode]))
- 
+
     def eye(self, value):
+        """
+        Turn on and off the Iris LEDs. There are 12 of them. Top one is the
+        first and they are incremeted clockwise.
+
+        Light bottom LED
+        >>> bot.eye(1<<6)
+
+        Light alternate LEDs
+        >>> bot.eye(0b1010101010101)
+
+        light all LEDs
+        >>> bot.eye(8191)
+
+        :param value: bitmask to which light to light up 0-8191
+        """
         self.command("eye", two_byte_array(value))
 
     def eye_brightness(self, value):
+        """
+        Set brightness of the eye backlight.
+
+        :param value: Brightness value 0-255
+        """
         self.command("eye_brightness", one_byte_array(value))
 
     def neck_color(self, color):
+        """
+        Set color Neck light on Dash, and Eye backlight on Dot.
+
+        :param color: 6-digit (e.g. #fa3b2c), 3-digit (e.g. #fbb),
+        fully spelled color (e.g. white)
+        """
         self.command("neck_color", color_byte_array(color))
 
     def left_ear_color(self, color):
+        """
+        Set color of left ear.
+
+        :param color: 6-digit (e.g. #fa3b2c), 3-digit (e.g. #fbb),
+        fully spelled color (e.g. white)
+        """
         self.command("left_ear_color", color_byte_array(color))
 
     def right_ear_color(self, color):
+        """
+        Set color of right ear.
+
+        :param color: 6-digit (e.g. #fa3b2c), 3-digit (e.g. #fbb),
+        fully spelled color (e.g. white)
+        """
         self.command("right_ear_color", color_byte_array(color))
 
     def ear_color(self, color):
@@ -95,11 +134,32 @@ class MorseRobot(GenericRobot):
         self.right_ear_color(color)
 
     def head_color(self, color):
+        """
+        """
         self.command("head_color", color_byte_array(color))
+
+    def say(self, sound_name):
+        """
+        Play a sound from sound bank file
+
+        :param sound_name: Name of sound to play
+
+        List available noies
+        >>> from morseapi import NOISES
+        >>> NOISES.keys()
+        """
+        self.command("say", bytearray(NOISES[sound_name]))
+
+    """ All the subsequent commands are Dash specific """
+
+    def tail_color(self, color):
+        raise NotImplementedError("Changing tail light color is not yet supported")
 
     def head_yaw(self, angle):
         """
-        Angle range is from -53 to 53
+        Turn Dash's head left or right
+
+        :param angle: distance to turn in degrees from -53 to 53
         """
         angle = max(-53, angle)
         angle = min(53, angle)
@@ -107,19 +167,30 @@ class MorseRobot(GenericRobot):
 
     def head_pitch(self, angle):
         """
-        Angle range is from -5 to 10
+        Tilt Dash's head up or down.
+
+        :param angle: distance to turn from -5 to 10
         """
         angle = max(-5, angle)
         angle = min(10, angle)
         self.command("head_pitch", angle_array(angle))
 
-    def say(self, sound_name):
-        self.command("say", bytearray(NOISES[sound_name]))
-
     def stop(self):
+        """
+        Stop moving Dash.
+        """
         self.command("drive", bytearray([0,0,0]))
 
     def drive(self, speed):
+        """
+        Start moving Dash forward or backward.
+
+        Dash will continue moving until another drive(), spin() or stop()
+        command is issued.
+
+        :param speed: Speed at which to move, 200 is a resonable value.
+        Negative speed drives Dash backwards.
+        """
         speed = max(-2048, speed)
         speed = min(2048, speed)
         if speed < 0:
@@ -131,6 +202,15 @@ class MorseRobot(GenericRobot):
         ]))
 
     def spin(self, speed):
+        """
+        Start spinning Dash left or right.
+
+        Dash will continue spinning until another drive(), spin() or stop()
+        command is issued.
+
+        :param speed: Speed at which to spin, 200 is a reasonable value.
+        Positive values spin clockwise and negative counter-clockwise.
+        """
         speed = max(-2048, speed)
         speed = min(2048, speed)
         if speed < 0:
@@ -143,7 +223,12 @@ class MorseRobot(GenericRobot):
 
     def turn(self, degrees):
         """
-        Turn robot degrees to left. Negative degrees to turn right.
+        Turn Dash specified distance.
+
+        This is a blocking call.
+
+        :param degrees: How many degrees to turn.
+        Positive values spin clockwise and negative counter-clockwise.
         """
         if abs(degrees)>360:
             raise NotImplementedError("Cannot turn more than one rotation per move")
@@ -152,10 +237,19 @@ class MorseRobot(GenericRobot):
             byte_array = self._get_move_byte_array(degrees=degrees, seconds=seconds)
             self.command("move", byte_array)
             time.sleep(seconds)
- 
-    def move(self, distance_millimetres, speed_mmps=1000):
-        seconds = abs(distance_millimetres / speed_mmps)
-        byte_array = self._get_move_byte_array(distance_millimetres=distance_millimetres, seconds=seconds)
+
+    def move(self, distance_mm, speed_mmps=1000):
+        """
+        Move specified distance at a particular speed.
+
+        This is a blocking call.
+
+        :param distance_mm: How far to move in mm. Negative values to go backwards
+        :param speed_mmps: Speed at which to move in mm/s.
+        """
+        speed_mmps = abs(speed_mmps)
+        seconds = abs(distance_mm / speed_mmps)
+        byte_array = self._get_move_byte_array(distance_mm=distance_mm, seconds=seconds)
         self.command("move", byte_array)
         time.sleep(seconds)
 
