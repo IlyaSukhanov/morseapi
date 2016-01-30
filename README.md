@@ -81,7 +81,7 @@ Dash and Dot have many different commands. Morse implements only fraction there 
 Run:
 
 ```
-python -m morse/examples/clock.py C0:F0:84:3C:51:FA
+examples/clock.py C0:F0:84:3C:51:FA
 ```
 
 where `C0:F0:84:3C:51:FA` should be the bluetooth address of your bot
