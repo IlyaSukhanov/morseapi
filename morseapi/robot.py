@@ -15,7 +15,7 @@ from colour import Color
 import pygatt.backends
 
 from sensors import MorseSense
-from constants import BOTS, HANDLES, CHARACTERISTICS, COMMANDS, NOISES
+from constants import HANDLES, CHARACTERISTICS, COMMANDS, NOISES
 
 def one_byte_array(value):
     return bytearray(struct.pack(">B", value))
@@ -295,7 +295,7 @@ class MorseRobot(GenericRobot):
 
 if __name__ == "__main__":
     logging.getLogger().setLevel(logging.DEBUG)
-    bot_name = BOTS[sys.argv[1]] if len(sys.argv)>1 else None
+    bot_name = sys.argv[1] if len(sys.argv)>1 else None
     bot = MorseRobot(bot_name)
     #for i in range(0, 9):
     #    bot.turn(45*i)

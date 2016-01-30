@@ -1,10 +1,5 @@
 from uuid import UUID
 
-BOTS = {
-    "dash": "EB:C9:96:2D:EA:48",
-    "dot": "C0:F0:84:3C:51:FA",
-}
-
 HANDLES = {
     "command": 0x13,
 }
