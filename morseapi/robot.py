@@ -253,8 +253,8 @@ class MorseRobot(GenericRobot):
         self.command("move", byte_array)
         time.sleep(seconds)
 
-    def _get_move_byte_array(self, distance_millimetres=0, degrees=0, seconds=1.0):
-        if distance_millimetres and degrees:
+    def _get_move_byte_array(self, distance_mm=0, degrees=0, seconds=1.0):
+        if distance_mm and degrees:
             # Sixth byte is mixed use
             # * turning
             #   * high nibble is turn distance high byte<<2
@@ -267,8 +267,8 @@ class MorseRobot(GenericRobot):
         sixth_byte = 0
         seventh_byte = 0
 
-        distance_low_byte = distance_millimetres & 0x00ff
-        distance_high_byte = (distance_millimetres & 0x3f00) >> 8
+        distance_low_byte = distance_mm & 0x00ff
+        distance_high_byte = (distance_mm & 0x3f00) >> 8
         sixth_byte |= distance_high_byte
 
         centiradians = int(math.radians(degrees) * 100.0)
