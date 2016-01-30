@@ -1,7 +1,7 @@
 import logging
 import time
 
-from constants import CHARACTERISTICS
+from morseapi.constants import CHARACTERISTICS
 
 class MorseSense(object):
     def __init__(self, connection, sensor_state, timeout=1.0):
@@ -39,6 +39,12 @@ class MorseSense(object):
         self.connection.subscribe(CHARACTERISTICS["dot_sensor"], self._dot_sensor_decode)
         self.connection.subscribe(CHARACTERISTICS["dash_sensor"], self._dash_sensor_decode)
 
+    def pause(self):
+        """
+        Pause sensor notification.
+        """
+        raise NotImplementedError("Oops")
+
     def _dot_sensor_decode(self, handle, value):
         self.dot_data_stream_ready = True
         self.sensor_state["dot_time"] = time.time()
@@ -58,7 +64,7 @@ class MorseSense(object):
         self.sensor_state["button2"] = value[8] & 0x40 > 0
         self.sensor_state["button3"] = value[8] & 0x80 > 0
 
-        logging.debug("self.sensor_state: {}".format(self.sensor_state))
+        # logging.debug("self.sensor_state: {}".format(self.sensor_state))
         """
         Unknown sensor fields
 
@@ -66,7 +72,7 @@ class MorseSense(object):
         usensors["0"] = value[0] & 0x0f
         usensors["1"] = value[1]  # always 0?
         usensors["7"] = value[7]  # microphone volume
-        usensors["8"] = value[8] & 0x0f # awlays 0? 
+        usensors["8"] = value[8] & 0x0f # awlays 0?
         usensors["9"] = value[9]
         usensors["10"] = value[10]
         usensors["11"] = value[11]
@@ -78,7 +84,10 @@ class MorseSense(object):
         usensors["17"] = value[17]
         usensors["18"] = value[18]
         usensors["19"] = value[19]
-        print("1:{:08b}\t2:{:08b}\t3:{:08b}\t4:{:08b}\t5:{:08b}".format(value[1], value[2], value[3], value[4], value[5]))
+        print(
+            "1:{:08b}\t2:{:08b}\t3:{:08b}\t4:{:08b}\t5:{:08b}"
+            .format(value[1], value[2], value[3], value[4], value[5])
+        )
         """
 
     def _dash_sensor_decode(self, handle, value):
@@ -93,7 +102,7 @@ class MorseSense(object):
         self.sensor_state["right_wheel"] = (value[17] << 8) | value[16]
         self.sensor_state["head_pitch"] = value[18]
         self.sensor_state["head_yaw"] = value[19]
-        logging.debug("self.sensor_state: {}".format(self.sensor_state))
+        # logging.debug("self.sensor_state: {}".format(self.sensor_state))
         """
         Unknown sensor fields
         missing fields: dot tracking, microphone direction
@@ -109,5 +118,8 @@ class MorseSense(object):
         usensors["9"] = value[9]  # Changes with wheel rotation
         usensors["10"] = value[10]  # Changes with wheel rotation
         usensors["11"] = value[11]  # Changes with wheel rotation
-        print("1:{:08b}\t2:{:08b}\t3:{:08b}\t4:{:08b}\t5:{:08b}".format(value[1], value[2], value[3], value[4], value[5]))
+        print(
+            "1:{:08b}\t2:{:08b}\t3:{:08b}\t4:{:08b}\t5:{:08b}"
+            .format(value[1], value[2], value[3], value[4], value[5])
+        )
         """

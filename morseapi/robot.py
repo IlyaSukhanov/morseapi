@@ -4,26 +4,41 @@ import logging
 import struct
 import binascii
 import math
-import sys
 
 from robots import GenericRobot
-#from robots.decorators import action, lock
-from robots.resources import Resource
-#from robots.signals import ActionCancelled
+# from robots.decorators import action, lock
+# from robots.resources import Resource
+# from robots.signals import ActionCancelled
 
 from colour import Color
 import pygatt.backends
 
-from sensors import MorseSense
-from constants import HANDLES, CHARACTERISTICS, COMMANDS, NOISES
+from morseapi.sensors import MorseSense
+from morseapi.constants import HANDLES, COMMANDS, NOISES
 
 def one_byte_array(value):
+    """
+    Convert Int to a one byte bytearray
+
+    :param value: value 0-255
+    """
     return bytearray(struct.pack(">B", value))
 
 def two_byte_array(value):
+    """
+    Convert Int to a two byte bytearray
+
+    :param value: value 0-65535
+    """
     return bytearray(struct.pack(">H", value))
 
 def color_byte_array(color_value):
+    """
+    convert color into a 3 byte bytearray
+
+    :param color_value: 6-digit (e.g. #fa3b2c), 3-digit (e.g. #fbb),
+    fully spelled color (e.g. white)
+    """
     color = Color(color_value)
     return bytearray([
         int(round(color.get_red()*255)),
@@ -32,32 +47,51 @@ def color_byte_array(color_value):
     ])
 
 def angle_array(angle):
+    """
+    Convert angle to a bytearray
+
+    :param angle: Angle -127-127
+    """
     if angle < 0:
         angle = (abs(angle) ^ 0xff) + 1
     return bytearray([angle & 0xff])
 
-#class MorseRobot(object):
 class MorseRobot(GenericRobot):
+    """
+    Controller of WonderWorkshop's Dot / Dash robots.
+
+    """
+
     def __init__(self, address=None):
         super(MorseRobot, self).__init__()
         self.sensor_state = {}
         self.address = address
+        self.sense = None
         self._connection = None
 
     @property
     def connection(self):
+        """
+        Lazy initialization of the connection object
+        """
         if self._connection:
             return self._connection
         elif self.address:
             adapter = pygatt.backends.GATTToolBackend()
             adapter.start(False)
             self._connection = adapter.connect(self.address, address_type='random')
-            self.sense = MorseSense(self._connection, self.sensor_state, "dash")
+            self.sense = MorseSense(self._connection, self.sensor_state)
             return self._connection
         else:
             return None
 
     def command(self, command_name, command_values):
+        """
+        Send a command to robot
+
+        :param command_name: command name, morseapi.COMMANDS
+        :param command_values: bytearray with command parameters
+        """
         message = bytearray([COMMANDS[command_name]]) + command_values
         logging.debug(binascii.hexlify(message))
         if self.connection:
@@ -130,11 +164,21 @@ class MorseRobot(GenericRobot):
         self.command("right_ear_color", color_byte_array(color))
 
     def ear_color(self, color):
+        """
+        Set color of both ears.
+
+        :param color: 6-digit (e.g. #fa3b2c), 3-digit (e.g. #fbb),
+        fully spelled color (e.g. white)
+        """
         self.left_ear_color(color)
         self.right_ear_color(color)
 
     def head_color(self, color):
         """
+        Set color of top LED.
+
+        :param color: 6-digit (e.g. #fa3b2c), 3-digit (e.g. #fbb),
+        fully spelled color (e.g. white)
         """
         self.command("head_color", color_byte_array(color))
 
@@ -150,7 +194,7 @@ class MorseRobot(GenericRobot):
         """
         self.command("say", bytearray(NOISES[sound_name]))
 
-    """ All the subsequent commands are Dash specific """
+    # All the subsequent commands are Dash specific
 
     def tail_color(self, color):
         raise NotImplementedError("Changing tail light color is not yet supported")
@@ -179,7 +223,7 @@ class MorseRobot(GenericRobot):
         """
         Stop moving Dash.
         """
-        self.command("drive", bytearray([0,0,0]))
+        self.command("drive", bytearray([0, 0, 0]))
 
     def drive(self, speed):
         """
@@ -230,10 +274,10 @@ class MorseRobot(GenericRobot):
         :param degrees: How many degrees to turn.
         Positive values spin clockwise and negative counter-clockwise.
         """
-        if abs(degrees)>360:
+        if abs(degrees) > 360:
             raise NotImplementedError("Cannot turn more than one rotation per move")
         if degrees:
-            seconds=abs(degrees*(2.094/360))
+            seconds = abs(degrees * (2.094 / 360))
             byte_array = self._get_move_byte_array(degrees=degrees, seconds=seconds)
             self.command("move", byte_array)
             time.sleep(seconds)
@@ -249,11 +293,12 @@ class MorseRobot(GenericRobot):
         """
         speed_mmps = abs(speed_mmps)
         seconds = abs(distance_mm / speed_mmps)
-        byte_array = self._get_move_byte_array(distance_mm=distance_mm, seconds=seconds)
+        byte_array = MorseRobot._get_move_byte_array(distance_mm=distance_mm, seconds=seconds)
         self.command("move", byte_array)
         time.sleep(seconds)
 
-    def _get_move_byte_array(self, distance_mm=0, degrees=0, seconds=1.0):
+    @staticmethod
+    def _get_move_byte_array(distance_mm=0, degrees=0, seconds=1.0):
         if distance_mm and degrees:
             # Sixth byte is mixed use
             # * turning
@@ -292,17 +337,3 @@ class MorseRobot(GenericRobot):
             seventh_byte,
             0x40, # unknown
         ])
-
-if __name__ == "__main__":
-    logging.getLogger().setLevel(logging.DEBUG)
-    bot_name = sys.argv[1] if len(sys.argv)>1 else None
-    bot = MorseRobot(bot_name)
-    #for i in range(0, 9):
-    #    bot.turn(45*i)
-    #for i in range(0, 9):
-    #    bot.turn(-45*i)
-    #import time
-    #while True:
-    #    time.sleep(100)
-    bot.spin(-200)
-    bot.spin(200)

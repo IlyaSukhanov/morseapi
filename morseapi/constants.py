@@ -19,12 +19,12 @@ COMMANDS = {
     "say":0x18,
     "drive":0x02,
     "move":0x23,
-    "reset":0xc8, 
+    "reset":0xc8,
 }
 
-NOISES={
+NOISES = {
     k:v.decode("hex")
-    for (k,v) in {
+    for (k, v) in {
         "elephant":   "53595354454c455048414e545f300e460000",  # SYSTELEPHANT_0.F
         "tiresqueal": "535953545449524553515545414c0e460000",  # SYSTTIRESQUEAL.F
         "hi":         "53595354444153485f48495f564f0b00c900",  # SYSTDASH_HI_VO
