@@ -85,6 +85,9 @@ class MorseRobot(GenericRobot):
         else:
             return None
 
+    def connect(self):
+        return self.connection
+
     def command(self, command_name, command_values):
         """
         Send a command to robot
