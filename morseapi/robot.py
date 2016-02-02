@@ -288,7 +288,8 @@ class MorseRobot(GenericRobot):
             self.command("move", byte_array)
             logging.debug("turn sleeping {0} @ {1}".format(seconds, time.time()))
             logging.debug(binascii.hexlify(byte_array))
-            self.sleep(seconds)
+            # self.sleep does not work and api says not to use time.sleep...
+            time.sleep(seconds)
             logging.debug("turn finished sleeping {0} @ {1}".format(seconds, time.time()))
 
     def move(self, distance_mm, speed_mmps=1000, no_turn=True):
@@ -316,7 +317,8 @@ class MorseRobot(GenericRobot):
         self.command("move", byte_array)
         logging.debug("move sleeping {0} @ {1}".format(seconds, time.time()))
         logging.debug(binascii.hexlify(byte_array))
-        self.sleep(seconds)
+        # self.sleep does not work and api says not to use time.sleep...
+        time.sleep(seconds)
         logging.debug("move finished sleeping {0} @ {1}".format(seconds, time.time()))
 
     @staticmethod
