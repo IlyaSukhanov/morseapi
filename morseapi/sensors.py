@@ -120,4 +120,4 @@ class MorseSense(object):
         self.sensor_state["unknown_dash"]["10"] = value[10]  # Changes with wheel rotation
         self.sensor_state["unknown_dash"]["11"] = value[11]  # Changes with wheel rotation
 
-        # logging.debug("self.sensor_state: {}".format(self.sensor_state))
+        #logging.debug("self.sensor_state: {}".format(self.sensor_state))

@@ -65,6 +65,7 @@ class MorseRobot(GenericRobot):
     def __init__(self, address=None):
         super(MorseRobot, self).__init__()
         self.sensor_state = {}
+        self.state = self.sensor_state
         self.address = address
         self.sense = None
         self._connection = None
@@ -81,6 +82,7 @@ class MorseRobot(GenericRobot):
             adapter.start(False)
             self._connection = adapter.connect(self.address, address_type='random')
             self.sense = MorseSense(self._connection, self.sensor_state)
+            self.sense.start()
             return self._connection
         else:
             return None
