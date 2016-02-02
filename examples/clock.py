@@ -30,9 +30,10 @@ def draw_time(bot, hour, minute, blink_duration__seconds=1):
 def run(bot_address):
     print("Connecting to {0}.".format(bot_address))
     bot = MorseRobot(bot_address)
+    bot.reset()
     bot.connect()
     print("Connected")
-    bot.sense.stop()
+    # bot.sense.unsubscribe()
     while True:
         draw_now(bot)
 
