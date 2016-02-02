@@ -21,21 +21,21 @@ class MorseRobotCommandsTest(unittest.TestCase):
         self._assert_command_called("move", command)
 
     def test_move_1000_forward_fast(self):
-        self._move_tester(1000, 600, "e800000682030040")
+        self._move_tester(1000, 600, "e800000682030080")
 
     def test_move_1000_backward_fast(self):
-        self._move_tester(-1000, 600.0, "18000006823c0040")
+        self._move_tester(-1000, 600.0, "18000006823c0081")
 
     def test_move_500_backward_slow(self):
-        self._move_tester(-500, 80, "0c0000186a3e0040")
+        self._move_tester(-500, 80, "0c0000186a3e0081")
 
     def test_turn_360_right(self):
         self.bot.turn(-360)
-        self._assert_command_called("move", "00008c082e40c040")
+        self._assert_command_called("move", "00008c082e40c080")
 
     def test_turn_360_left(self):
         self.bot.turn(360)
-        self._assert_command_called("move", "000074082e800040")
+        self._assert_command_called("move", "000074082e800080")
 
     def test_stop(self):
         self.bot.stop()

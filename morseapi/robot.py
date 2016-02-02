@@ -268,7 +268,7 @@ class MorseRobot(GenericRobot):
             (speed & 0xff00) >> 5
         ]))
 
-    def turn(self, degrees):
+    def turn(self, degrees, speed_dps=(360/2.094)):
         """
         Turn Dash specified distance.
 
@@ -276,16 +276,20 @@ class MorseRobot(GenericRobot):
 
         :param degrees: How many degrees to turn.
         Positive values spin clockwise and negative counter-clockwise.
+        :param speed: Speed to turn at, in degrees/second
         """
         if abs(degrees) > 360:
             raise NotImplementedError("Cannot turn more than one rotation per move")
         if degrees:
-            seconds = abs(degrees * (2.094 / 360))
+            seconds = abs(degrees/speed_dps)
             byte_array = self._get_move_byte_array(degrees=degrees, seconds=seconds)
             self.command("move", byte_array)
-            time.sleep(seconds)
+            logging.debug("turn sleeping {0} @ {1}".format(seconds, time.time()))
+            logging.debug(binascii.hexlify(byte_array))
+            self.sleep(seconds)
+            logging.debug("turn finished sleeping {0} @ {1}".format(seconds, time.time()))
 
-    def move(self, distance_mm, speed_mmps=1000):
+    def move(self, distance_mm, speed_mmps=1000, no_turn=True):
         """
         Move specified distance at a particular speed.
 
@@ -296,20 +300,37 @@ class MorseRobot(GenericRobot):
         """
         speed_mmps = abs(speed_mmps)
         seconds = abs(distance_mm / speed_mmps)
-        byte_array = MorseRobot._get_move_byte_array(distance_mm=distance_mm, seconds=seconds)
+        if no_turn and distance_mm < 0:
+            byte_array = MorseRobot._get_move_byte_array(
+                distance_mm=distance_mm,
+                seconds=seconds,
+                eight_byte=0x81,
+            )
+        else:
+            byte_array = MorseRobot._get_move_byte_array(
+                distance_mm=distance_mm,
+                seconds=seconds,
+            )
         self.command("move", byte_array)
-        time.sleep(seconds)
+        logging.debug("move sleeping {0} @ {1}".format(seconds, time.time()))
+        logging.debug(binascii.hexlify(byte_array))
+        self.sleep(seconds)
+        logging.debug("move finished sleeping {0} @ {1}".format(seconds, time.time()))
 
     @staticmethod
-    def _get_move_byte_array(distance_mm=0, degrees=0, seconds=1.0):
+    def _get_move_byte_array(distance_mm=0, degrees=0, seconds=1.0, eight_byte=0x80):
+        # Sixth byte is mixed use
+        # * turning
+        #   * high nibble is turn distance high byte<<2
+        #   * low nibble is 0
+        # * driving straight
+        #   * whole byte is high byte of drive distance
+        # unclear if these can be combined
+        # Eight byte is weird.
+        # * On subsequent move commands its usually 0x40
+        # * On first command its usually 0x80, but not required
+        # * When driving backwards without turning around last bit is 1
         if distance_mm and degrees:
-            # Sixth byte is mixed use
-            # * turning
-            #   * high nibble is turn distance high byte<<2
-            #   * low nibble is 0
-            # * driving straight
-            #   * whole byte is high byte of drive distance
-            # unclear if these can be combined
             raise NotImplementedError("Cannot turn and move concurrently")
 
         sixth_byte = 0
@@ -338,5 +359,5 @@ class MorseRobot(GenericRobot):
             time_low_byte,
             sixth_byte,
             seventh_byte,
-            0x40, # unknown
+            eight_byte,
         ])
