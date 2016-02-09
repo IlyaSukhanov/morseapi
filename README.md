@@ -15,7 +15,7 @@ reasonably modern Distro. Limitation is mostly on the BlueZ version, and
 bluetooth adapter compatibility. [Raspberry Pi](https://www.raspberrypi.org/)
 is a particularly attractive platform for running MorseAPI. Its a small
 enough package that it can be attached to the robot making for a fully
-integrated, and portable package. 
+integrated, and portable package.
 [Raspbian](https://www.raspberrypi.org/downloads/raspbian/) in particular
 has been tested in this combination. Note, that Raspberry does not come
 with a built in bluttooth module, so a USB bluetooth accessory is required.
@@ -69,7 +69,8 @@ Dash and Dot have many different commands. Morse implements only fraction there 
   * Proximity Sensing
   * Head pitch / yaw
   * wheel rotation
-  * ~~Dash sensing of Dot~~
+  * Dash sensing of Dot
+  * Robot picked / bumped / toppled oved
   * ~~Sound direction~~
   * ~~Gyro~~
   * ~~Battery state~~

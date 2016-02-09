@@ -58,11 +58,21 @@ class MorseSense(object):
         self.sensor_state["dot_index"] = value[0] >> 4
 
         # Accelerometer / gyro data, what fields mean is not yet clear
-        self.sensor_state["ag0"] = value[2]
+        self.sensor_state["ag0"] = value[2] #tilt forward
         self.sensor_state["ag1"] = value[3]
-        self.sensor_state["ag2"] = value[4]
+        self.sensor_state["ag2"] = value[4] #first nibble rotate forward / backward second nibble rotate left right
         self.sensor_state["ag3"] = value[5]
         self.sensor_state["ag4"] = value[6]
+        # print(
+        #     "ag0: {0:03} ag1: {1:03} ag2a: {2:02} ag2b: {3:02} ag3: {4:02} ag4: {5:03}".format(
+        #         self.sensor_state["ag0"]//10,
+        #         self.sensor_state["ag1"]//10,
+        #         self.sensor_state["ag2"] >> 4,
+        #         self.sensor_state["ag2"] & 0x0f,
+        #         self.sensor_state["ag3"]>>4,
+        #         self.sensor_state["ag4"]//10,
+        #     )
+        # )
 
         self.sensor_state["mic_volume"] = value[7]
 
@@ -71,21 +81,40 @@ class MorseSense(object):
         self.sensor_state["button2"] = value[8] & 0x40 > 0
         self.sensor_state["button3"] = value[8] & 0x80 > 0
 
+        # byte 11
+        # 0x30 when nominal position
+        # 0x24 when on side
+        # 0x04 when picked up
+        # 0x00 when wheels moving
+        # 0x01 when bumped, last bit ONLY active bit of byte 11 on dot
+        # 0x25 picked up and bumped
+        self.sensor_state["moving"] = value[11] == 0
+        self.sensor_state["picked_up"] = bool(value[11] & 0x04)
+        self.sensor_state["hit"] = bool(value[11] & 0x01)
+        self.sensor_state["side"] = value[11] & 0x20 == 0x20
+        self.sensor_state["nominal"] = value[11] & 0x30 == 0x30
+
+        # Dash sensing of dot; Dash only, there might be more states here
+        # there are false positice reading mostly on reflective surfaces 
+        self.sensor_state["dot_left_of_dash"] = value[16] & 0x0f not in [0x0f, 0x0] 
+        self.sensor_state["dot_right_of_dash"] = value[16] & 0xf0 not in [0xf0, 0x0]
+        # self.sensor_state["dot_center_of_dash"] = (
+        #     self.sensor_state["dot_right_of_dash"] && 
+        #     self.sensor_state["dot_left_of_dash"]
+        # )
+
         # Unknown sensor fields
         if "unknown_dot" not in self.sensor_state:
             self.sensor_state["unknown_dot"] = {}
         self.sensor_state["unknown_dot"]["0"] = value[0] & 0x0f
         self.sensor_state["unknown_dot"]["1"] = value[1]  # always 0?
-        self.sensor_state["unknown_dot"]["7"] = value[7]  # microphone volume
         self.sensor_state["unknown_dot"]["8"] = value[8] & 0x0f # awlays 0?
         self.sensor_state["unknown_dot"]["9"] = value[9]
         self.sensor_state["unknown_dot"]["10"] = value[10]
-        self.sensor_state["unknown_dot"]["11"] = value[11]
         self.sensor_state["unknown_dot"]["12"] = value[12]
         self.sensor_state["unknown_dot"]["13"] = value[13]
         self.sensor_state["unknown_dot"]["14"] = value[14]
         self.sensor_state["unknown_dot"]["15"] = value[15]
-        self.sensor_state["unknown_dot"]["16"] = value[16]
         self.sensor_state["unknown_dot"]["17"] = value[17]
         self.sensor_state["unknown_dot"]["18"] = value[18]
         self.sensor_state["unknown_dot"]["19"] = value[19]
