@@ -1,4 +1,5 @@
 import unittest
+from collections import defaultdict
 from mock import MagicMock, patch
 
 from morseapi import MorseSense
@@ -10,38 +11,47 @@ DASH_RAW_SENSOR = bytearray(
     .decode("hex")
 )
 DASH_DECODED_SENSOR = {
+    'acceleration': 956,
     'dash_index': 8,
     'head_pitch': 4,
     'head_yaw': 5,
-    'left_wheel': 58876,
     'prox_left': 1,
     'prox_rear': 255,
     'prox_right': 1,
     'right_wheel': 6492,
-    'robot_yaw': 57756,
+    'roll_delta': -1,
+    'wheel_distance': -716,
+    'yaw': 53660,
+    'yaw_delta': 53660,
 }
 DOT_RAW_SENSOR = bytearray(
     "8000d227f030bc0000000030ff35e30800000000"
     .decode("hex")
 )
 DOT_DECODED_SENSOR = {
-    'ag0': 210,
-    'ag1': 39,
-    'ag2': 240,
-    'ag3': 48,
-    'ag4': 188,
     'button0': False,
     'button1': False,
     'button2': False,
     'button3': False,
+    'clap': False,
     'dot_index': 8,
-    'mic_volume': 0,
+    'mic_level': 0,
+    'moving': False,
+    'nominal': True,
+    'pitch': -46,
+    'roll': 39,
+    # Decoding to the rest is bit iffy
+    # 'dot_left_of_dash': False,
+    # 'dot_right_of_dash': False,
+    # 'hit': False,
+    # 'picked_up': False,
+    # 'side': True,
 }
 
 class RobotTests(object):
     def setup_helper(self):
         self.conn = MagicMock()
-        self.sensor_state = {}
+        self.sensor_state = defaultdict(int) 
         self.sense = MorseSense(self.conn, self.sensor_state)
         self.conn.subscribe = MagicMock(
             side_effect=self.subscribe_side_effect()
@@ -53,6 +63,7 @@ class RobotTests(object):
         self.assertEqual(self.sensor_state['robot'], robot)
 
     def assert_sensor_data(self, decoded_sensor):
+        
         for key, value in decoded_sensor.iteritems():
             self.assertEqual(self.sensor_state[key], value)
 

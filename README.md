@@ -71,8 +71,10 @@ Dash and Dot have many different commands. Morse implements only fraction there 
   * wheel rotation
   * Dash sensing of Dot
   * Robot picked / bumped / toppled oved
-  * ~~Sound direction~~
-  * ~~Gyro~~
+  * Sound direction
+  * Gyro pitch/yaw/roll
+  * Vertical acceleration
+  * Clap
   * ~~Battery state~~
  * ~~Robot discovery~~
    * feature discovery (Dash & Dot have different feature sets)

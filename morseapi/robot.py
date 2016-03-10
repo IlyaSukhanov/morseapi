@@ -4,6 +4,7 @@ import logging
 import struct
 import binascii
 import math
+from collections import defaultdict
 
 from robots import GenericRobot
 # from robots.decorators import action, lock
@@ -64,7 +65,7 @@ class MorseRobot(GenericRobot):
 
     def __init__(self, address=None):
         super(MorseRobot, self).__init__()
-        self.sensor_state = {}
+        self.sensor_state = defaultdict(int)
         self.state = self.sensor_state
         self.address = address
         self.sense = None

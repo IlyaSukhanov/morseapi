@@ -1,3 +1,7 @@
-Blake Foster
-Ilya Sukhanov
-Milen Pavlov
+Authors:
+* [Blake Foster](https://github.com/BlakeFoster)
+* [Ilya Sukhanov](https://github.com/IlyaSukhanov)
+* [Milen Pavlov](https://github.com/mpavlov)
+
+Additional contributions from:
+* [vdwel](https://github.com/vdwel) decoding for gyro data from [RobotControl](https://github.com/vdwel/RobotControl) project
