@@ -42,10 +42,9 @@ This is only tested on Debian, though it should work on other Linux flavors. OSX
 
 Steps:
 
- * first clone this repo and `cd` into it
- * `apt-get install bluez`  # version 5+ is required by pygatt
- * `git clone https://github.com/peplin/pygatt`
- * `pip install -r requirements.pip`
+ * `sudo apt-get install bluez`  # version 5+ is required by pygatt
+ * clone this repo and `cd` into it
+ * pip install -e . 
 
 ## Completeness
 Dash and Dot have many different commands. Morse implements only fraction there of:
@@ -93,6 +92,8 @@ where `C0:F0:84:3C:51:FA` should be the bluetooth address of your bot
 $ python
 >>> from morseapi import MorseRobot
 >>> bot = MorseRobot("C0:F0:84:3C:51:FA")
+>>> bot.reset()
+>>> bot.connect()
 >>> bot.say("hi")
 >>> bot.move(100)
 >>> bot.turn(45)

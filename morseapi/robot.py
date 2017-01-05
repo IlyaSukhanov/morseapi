@@ -81,7 +81,7 @@ class MorseRobot(GenericRobot):
         elif self.address:
             adapter = pygatt.backends.GATTToolBackend()
             adapter.start(False)
-            self._connection = adapter.connect(self.address, address_type='random')
+            self._connection = adapter.connect(self.address, address_type=pygatt.BLEAddressType.random)
             self.sense = MorseSense(self._connection, self.sensor_state)
             self.sense.start()
             return self._connection
