@@ -202,8 +202,14 @@ class MorseRobot(GenericRobot):
 
     # All the subsequent commands are Dash specific
 
-    def tail_color(self, color):
-        raise NotImplementedError("Changing tail light color is not yet supported")
+    def tail_brightness(self, value):
+        """
+        Set brightness of the tail backlight.
+
+        :param value: Brightness value 0-255
+        """
+        self.command("tail_brightness", one_byte_array(value))
+
 
     def head_yaw(self, angle):
         """

@@ -9,6 +9,7 @@ CHARACTERISTICS = {
 }
 COMMANDS = {
     "neck_color":0x03,
+    "tail_brightness":0x04,
     "eye_brightness":0x08,
     "eye":0x09,
     "left_ear_color":0x0b,
