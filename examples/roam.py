@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from morseapi import MorseRobot
 
 import logging
